@@ -136,7 +136,7 @@ Starting web service request to NetSuite...
 
 Header Auth Token: @{props['p.auth.token']}
 
-JSON REQUEST-START: 
+JSON REQUEST: 
 
 {
   &quot;periodId&quot; : &quot;@{props['p.period.ID']}&quot;,
