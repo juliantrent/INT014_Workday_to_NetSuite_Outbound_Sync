@@ -152,11 +152,6 @@ JSON Message:
 </cc:text>
                     </cc:log-message>
                 </cc:log>
-                <cc:log id="Log1">
-                    <cc:log-message>
-                        <cc:text>##TEST##</cc:text>
-                    </cc:log-message>
-                </cc:log>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="SendErr1"/>
         </cc:async-mediation>
