@@ -94,7 +94,6 @@
                         <cc:text>
 ##### HTTP RESPONSE START #####
 Response Status Code: @{props['http.response.status']}
-
 Response Message: </cc:text>
                         <cc:message-content/>
                         <cc:text>
@@ -152,7 +151,13 @@ JSON Message:
 #####
 </cc:text>
                     </cc:log-message>
-                </cc:log></cc:steps>
+                </cc:log>
+                <cc:log id="Log1">
+                    <cc:log-message>
+                        <cc:text>##TEST##</cc:text>
+                    </cc:log-message>
+                </cc:log>
+            </cc:steps>
             <cc:send-error id="SendError" routes-to="SendErr1"/>
         </cc:async-mediation>
         <cc:local-out id="SendErr2" endpoint="vm://wcc/PutIntegrationMessage">
