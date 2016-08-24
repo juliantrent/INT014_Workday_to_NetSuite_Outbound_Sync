@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+     xmlns="http://www.springframework.org/schema/beans"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:cc="http://www.capeclear.com/assembly/10"
+     xmlns:cloud="urn:com.workday/esb/cloud/10.0"
+     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+     xmlns:pi="urn:com.workday/picof"
+     xmlns:wd="urn:com.workday/bsvc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+	<cc:assembly id="WorkdayAssembly" version="20">
+        <cc:workday-in id="StartHere" routes-to="AssignProps_WriteMessage_SetHeaders">
+            <cc:integration-system name="INT014_Workday_to_NetSuite_Outbound_Sync">
+        <cloud:param name="Period">
+          <cloud:type>
+            <cloud:class-report-field description="Period" type="WID" singular="true">b98453fd72a94635906231c74ef8cb0f</cloud:class-report-field>
+          </cloud:type>
+          <cloud:default/>
+          <cloud:launch-option>required</cloud:launch-option>
+        </cloud:param>
+        <cloud:param name="Year">
+          <cloud:type>
+            <cloud:class-report-field description="Fiscal Year" type="WID" singular="true">e7f73c9a647c4bf6bd9de581015bf44a</cloud:class-report-field>
+          </cloud:type>
+          <cloud:launch-option>required</cloud:launch-option>
+        </cloud:param>
+        <cloud:param name="Journal Sources">
+          <cloud:type>
+            <cloud:class-report-field description="Journal Source for Payroll Accounting Transaction" type="WID" singular="true">b0ca23e2dc6f100003a79e7b8d921df3</cloud:class-report-field>
+          </cloud:type>
+        </cloud:param>
+        <cloud:param name="Start Accounting Date">
+          <cloud:type>
+            <cloud:simple-type>date</cloud:simple-type>
+          </cloud:type>
+        </cloud:param>
+        <cloud:param name="End Accounting Date">
+          <cloud:type>
+            <cloud:simple-type>date</cloud:simple-type>
+          </cloud:type>
+        </cloud:param>
+        <cloud:param name="From Updated Date">
+          <cloud:type>
+            <cloud:simple-type>datetime</cloud:simple-type>
+          </cloud:type>
+        </cloud:param>
+        <cloud:param name="To Updated Date">
+          <cloud:type>
+            <cloud:simple-type>datetime</cloud:simple-type>
+          </cloud:type>
+        </cloud:param>
+        <cloud:param name="Company">
+          <cloud:type>
+            <cloud:class-report-field description="Company" type="WID" singular="true">5c90f4cbd53e10001bf925d1e99d00b0</cloud:class-report-field>
+          </cloud:type>
+          <cloud:default>
+            <cloud:reference description="AppDynamics, Inc." type="WID">672f073d94061046a82273c042d6e949</cloud:reference>
+          </cloud:default>
+          <cloud:launch-option>required</cloud:launch-option>
+        </cloud:param>
+        <cloud:attribute-map-service name="NetSuite_Journal_Entry_URL">
+          <cloud:attribute name="URL">
+            <cloud:type>
+              <cloud:simple-type>text</cloud:simple-type>
+            </cloud:type>
+            <cloud:display-option>required-for-launch</cloud:display-option>
+          </cloud:attribute>
+          <cloud:attribute name="Auth Token">
+            <cloud:type>
+              <cloud:simple-type>text</cloud:simple-type>
+            </cloud:type>
+            <cloud:display-option>display-as-password</cloud:display-option>
+            <cloud:display-option>required-for-launch</cloud:display-option>
+          </cloud:attribute>
+        </cloud:attribute-map-service>
+      </cc:integration-system>
+        </cc:workday-in>
+        <cc:send-error id="global-error-handler" rethrow-error="false" routes-to="Note-Error"/>
+        <cc:local-out id="Note-Error" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'CRITICAL'"/>
+            <cc:set name="is.message.summary" value="context.errorMessage"/>
+        </cc:local-out>
+        <cc:http-out id="HttpOut" routes-response-to="Log" endpoint="@{props['p.endpoint']}" http-method="POST">
+        </cc:http-out>
+        <cc:local-out id="SendErr1" endpoint="vm://wcc/PutIntegrationMessage"><cc:set name="is.message.severity" value="'ERROR'"/><cc:set name="is.message.summary" value="context.errorCode + ' Local Handler: ' + context.errorMessage"/><cc:set name="is.message.detail" value="parts[0].text"/></cc:local-out>
+        <cc:local-out id="PutIntegrationMessage0" endpoint="vm://wcc/PutIntegrationMessage"><cc:set name="is.message.severity" value="'INFO'"/><cc:set name="is.message.summary" value="'HTTP POST to endpoint successful'"/><cc:set name="is.message.detail"/></cc:local-out>
+        <cc:async-mediation id="Log" routes-to="PutIntegrationMessage0">
+            <cc:steps>
+                <cc:validate-exp id="ValidateExp"><cc:expression replace-message="false">props['http.response.status'] == '202'</cc:expression></cc:validate-exp>
+                <cc:log id="Log">
+                    <cc:log-message>
+                        <cc:text>
+##### HTTP RESPONSE START #####
+Response Status Code: @{props['http.response.status']}
+
+Response Message: </cc:text>
+                        <cc:message-content/>
+                        <cc:text>
+##### HTTP RESPONSE END #####
+</cc:text>
+                    </cc:log-message>
+                </cc:log>
+            </cc:steps>
+            <cc:send-error id="SendError" routes-to="SendErr2"/>
+        </cc:async-mediation>
+        <cc:async-mediation id="AssignProps_WriteMessage_SetHeaders" routes-to="HttpOut">
+            <cc:steps>
+                <cc:eval id="Eval"><cc:expression>props['p.period.ID'] = lp.getReferenceData('Period', 'WID')</cc:expression><cc:expression>props['p.company.ID'] = lp.getReferenceData('Company', 'WID')</cc:expression><cc:expression>props['p.year.ID'] = lp.getReferenceData('Year', 'WID')</cc:expression><cc:expression>props['p.account.from.date'] = lp.getSimpleData('Start Accounting Date') </cc:expression><cc:expression>props['p.account.to.date'] = lp.getSimpleData('End Accounting Date') </cc:expression><cc:expression>props['p.last.updated.from'] = lp.getSimpleData('From Updated Date')</cc:expression><cc:expression>props['p.last.updated.to'] = lp.getSimpleData('To Updated Date')</cc:expression><cc:expression>props['p.endpoint'] = intsys.getAttribute('URL')</cc:expression><cc:expression>props['p.auth.token'] = intsys.getAttribute('Auth Token')</cc:expression></cc:eval>
+                <cc:log id="Log0">
+                    <cc:log-message>
+                        <cc:message-content/>
+                    </cc:log-message>
+                </cc:log>
+                <cc:write id="Write" output-mimetype="application/json">
+                    <cc:message>
+                        <cc:text>{&#xD;
+  &quot;periodId&quot; : &quot;@{props['p.period.ID']}&quot;,&#xD;
+  &quot;companyId&quot; : &quot;@{props['p.company.ID']}&quot;,&#xD;
+  &quot;yearId&quot; : &quot;@{props['p.year.ID']}&quot;,&#xD;
+  &quot;accountFromDate&quot; : &quot;@{props['p.account.from.date']}&quot;,&#xD;
+  &quot;accountToDate&quot; : &quot;@{props['p.account.to.date']}&quot;,&#xD;
+  &quot;lastUpdatedFrom&quot; : &quot;@{props['p.last.updated.from']}&quot;,&#xD;
+  &quot;lastUpdatedTo&quot; : &quot;@{props['p.last.updated.to']}&quot;&#xD;
+}&#xD;
+</cc:text>
+                    </cc:message>
+                </cc:write>
+                <cc:set-headers id="SetHeaders"><cc:remove-headers/><cc:add-headers><cc:add-header name="Authorization" value="Basic @{props['p.auth.token']}"/></cc:add-headers></cc:set-headers>
+                <cc:log id="Log">
+                    <cc:log-message>
+                        <cc:line-separator/>
+                        <cc:text>
+#####
+Starting web service request to NetSuite...
+
+Header Auth Token: @{props['p.auth.token']}
+
+JSON Message: 
+
+{
+  &quot;periodId&quot; : &quot;@{props['p.period.ID']}&quot;,
+  &quot;companyId&quot; : &quot;@{props['p.company.ID']}&quot;,
+  &quot;yearId&quot; : &quot;@{props['p.year.ID']}&quot;,
+  &quot;accountFromDate&quot; : &quot;@{props['p.account.from.date']}&quot;,
+  &quot;accountToDate&quot; : &quot;@{props['p.account.to.date']}&quot;,
+  &quot;lastUpdatedFrom&quot; : &quot;@{props['p.last.updated.from']}&quot;,
+  &quot;lastUpdatedTo&quot; : &quot;@{props['p.last.updated.to']}&quot;
+}
+
+#####
+</cc:text>
+                    </cc:log-message>
+                </cc:log></cc:steps>
+            <cc:send-error id="SendError" routes-to="SendErr1"/>
+        </cc:async-mediation>
+        <cc:local-out id="SendErr2" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'ERROR'"/>
+            <cc:set name="is.message.summary" value="context.errorCode + ' Local Handler: ' + context.errorMessage"/>
+            <cc:set name="is.message.detail" value="'Request not recieved by Informatica'"/>
+        </cc:local-out>
+	</cc:assembly>
+
+</beans>

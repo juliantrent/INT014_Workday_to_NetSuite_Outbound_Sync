@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties x="32" y="303">
+    <element href="assembly.xml#StartHere"/>
+  </visualProperties>
+  <visualProperties x="48" y="654">
+    <element href="assembly.xml#//@beans/@mixed.1/@mixed.3"/>
+  </visualProperties>
+  <visualProperties x="242" y="656">
+    <element href="assembly.xml#Note-Error"/>
+  </visualProperties>
+  <visualProperties x="521" y="303">
+    <element href="assembly.xml#HttpOut"/>
+  </visualProperties>
+  <visualProperties x="252" y="487">
+    <element href="assembly.xml#SendErr1"/>
+  </visualProperties>
+  <visualProperties x="800" y="303">
+    <element href="assembly.xml#PutIntegrationMessage0"/>
+  </visualProperties>
+  <visualProperties x="645" y="303">
+    <element href="assembly.xml#Log"/>
+  </visualProperties>
+  <visualProperties x="180" y="303">
+    <element href="assembly.xml#AssignProps_WriteMessage_SetHeaders"/>
+  </visualProperties>
+  <visualProperties x="663" y="478">
+    <element href="assembly.xml#SendErr2"/>
+  </visualProperties>
+  <decorations x="11" y="26" width="585" height="69" font="Arial|24|1" fontColor="1" type="TEXT" text="INT014 Workday to NetSuite Outbound Sync"/>
+  <decorations x="14" y="154" width="211" height="53" font="Arial|16|1" fontColor="1" type="TEXT" text="MAIN ASSEMBLY"/>
+  <decorations x="1" y="221" width="1659" height="8" font="Segoe UI|9|0" bgColor="1" fgColor="1" text="zzzz"/>
+  <decorations x="24" y="534" width="301" height="53" font="Arial|16|1" fontColor="1" type="TEXT" text="GLOBAL ERROR HANDLER"/>
+  <decorations x="1" y="601" width="1659" height="8" font="Segoe UI|9|0" bgColor="1" fgColor="1" text="zzzz"/>
+  <decorations x="32" y="631" width="323" height="88" bgColor="255" text=""/>
+  <decorations x="286" y="104" width="410" height="43" font="Arial|9|0" fontColor="1" type="TEXT" text="Informatica Endpoint (same for PROD and SAND):&#xA;https://ps1w2.rt.informaticacloud.com/active-bpel/rt/SyncWorkdayNetSuiteJournalEntry"/>
+  <connections type="routesTo" sourceAnchorX="0.9669421487603306" sourceAnchorY="0.43243243243243246" targetAnchorX="0.06060606060606061" targetAnchorY="0.3783783783783784">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.3"/>
+    <target href="assembly.xml#Note-Error"/>
+  </connections>
+  <connections type="routesResponseTo" sourceAnchorX="1.0" sourceAnchorY="0.32432432432432434" targetAnchorX="0.40186915887850466" targetAnchorY="0.13043478260869565">
+    <source href="assembly.xml#HttpOut"/>
+    <target href="assembly.xml#Log"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="1.0" sourceAnchorY="0.15217391304347827" targetAnchorX="0.10828025477707007" targetAnchorY="0.2972972972972973">
+    <source href="assembly.xml#Log"/>
+    <target href="assembly.xml#PutIntegrationMessage0"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="1.0" sourceAnchorY="0.4864864864864865" targetAnchorX="0.18996415770609318" targetAnchorY="0.17391304347826086">
+    <source href="assembly.xml#StartHere"/>
+    <target href="assembly.xml#AssignProps_WriteMessage_SetHeaders"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="0.9247311827956989" sourceAnchorY="0.14634146341463414" targetAnchorX="0.19101123595505617" targetAnchorY="0.4864864864864865">
+    <source href="assembly.xml#AssignProps_WriteMessage_SetHeaders"/>
+    <target href="assembly.xml#HttpOut"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="0.39338235294117646" sourceAnchorY="0.8" targetAnchorX="0.375" targetAnchorY="0.3783783783783784">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.15/@mixed.3"/>
+    <target href="assembly.xml#SendErr1"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="0.56" sourceAnchorY="1.0" targetAnchorX="0.5473684210526316" targetAnchorY="0.05405405405405406">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.13/@mixed.3"/>
+    <target href="assembly.xml#SendErr2"/>
+  </connections>
+</wdnm:Diagram>
